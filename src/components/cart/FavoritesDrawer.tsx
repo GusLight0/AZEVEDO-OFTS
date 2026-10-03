@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useFavorites } from "@/lib/favorites-context";
 import { useCart } from "@/lib/cart-context";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, getProductColors } from "@/lib/utils";
 
 export function FavoritesDrawer() {
   const { items, isOpen, closeFavorites, toggle } = useFavorites();
@@ -97,18 +97,32 @@ export function FavoritesDrawer() {
                         {formatPrice(product.price)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <button
-                          onClick={() => addItem(product, product.sizes[0])}
-                          disabled={!product.inStock}
-                          className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-500 transition-colors ${
-                            product.inStock
-                              ? "bg-[#0b1f3a] text-white hover:bg-[#153a72]"
-                              : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                          }`}
-                        >
-                          <ShoppingCart size={12} />
-                          {product.inStock ? "Adicionar" : "Esgotado"}
-                        </button>
+                        {product.inStock &&
+                        (getProductColors(product.color).length > 0 ||
+                          product.sizes.length > 0) ? (
+                          <Link
+                            href={`/produto/${product.slug}`}
+                            onClick={closeFavorites}
+                            className="flex items-center gap-1.5 rounded-lg bg-[#0b1f3a] px-3 py-1.5 text-xs font-500 text-white transition-colors hover:bg-[#153a72]"
+                          >
+                            <ShoppingCart size={12} />
+                            Escolher opções
+                          </Link>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => addItem(product, "")}
+                            disabled={!product.inStock}
+                            className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-500 transition-colors ${
+                              product.inStock
+                                ? "bg-[#0b1f3a] text-white hover:bg-[#153a72]"
+                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            }`}
+                          >
+                            <ShoppingCart size={12} />
+                            {product.inStock ? "Adicionar" : "Esgotado"}
+                          </button>
+                        )}
                         <button
                           onClick={() => toggle(product)}
                           className="text-xs text-red-400 hover:text-red-600 transition-colors font-500"

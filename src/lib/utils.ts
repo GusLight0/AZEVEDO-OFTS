@@ -31,6 +31,26 @@ export function formatPrice(value: number): string {
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+export function getProductColors(color?: string): string[] {
+  return color?.split(",").map((value) => value.trim()).filter(Boolean) ?? [];
+}
+
+export function getColorClassName(color: string): string {
+  const colorMap: Record<string, string> = {
+    Preto: "bg-black",
+    Branco: "bg-white",
+    Musgo: "bg-[#4b5320]",
+    Bege: "bg-[#f5f5dc]",
+    Marrom: "bg-[#5d4037]",
+  };
+
+  return colorMap[color] || "bg-gray-300";
+}
+
+export function getAvailableProductSizes(sizes: string[]): string[] {
+  return sizes.filter((size) => size !== "P" && size !== "XGG");
+}
+
 export function calcDiscount(original: number, current: number): number {
   return Math.round(((original - current) / original) * 100);
 }

@@ -1,12 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { ShoppingCart, Heart } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ShoppingCart, Heart, X } from "lucide-react";
 import { Product } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import {
+  formatPrice,
+  getAvailableProductSizes,
+  getColorClassName,
+  getProductColors,
+} from "@/lib/utils";
 import { ProductBadge } from "@/components/ui/ProductBadge";
 import { useCart } from "@/lib/cart-context";
 import { useFavorites } from "@/lib/favorites-context";
@@ -21,18 +27,35 @@ export function ProductCard({
   const { addItem } = useCart();
   const { toggle, isFavorited } = useFavorites();
   const liked = isFavorited(product.id);
-  const [selectedSize, setSelectedSize] = useState(() => {
-    const availableSizes = product.sizes.filter(s => s !== "P" && s !== "XGG");
-    return availableSizes[0] || product.sizes[0] || "";
-  });
+  const [selectionOpen, setSelectionOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+  const colors = getProductColors(product.color);
+  const availableSizes = getAvailableProductSizes(product.sizes);
+  const hasSizeOptions = product.sizes.length > 0;
+  const canAdd = (!colors.length || !!selectedColor) &&
+    (!hasSizeOptions || !!selectedSize);
 
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleAdd = () => {
     if (!product.inStock) return;
-    addItem(product, selectedSize);
+    if (!colors.length && !hasSizeOptions) {
+      addItem(product, "");
+      return;
+    }
+
+    setSelectedColor("");
+    setSelectedSize("");
+    setSelectionOpen(true);
+  };
+
+  const confirmAdd = () => {
+    if (!canAdd) return;
+    addItem(product, selectedSize, selectedColor || undefined);
+    setSelectionOpen(false);
   };
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -100,31 +123,6 @@ export function ProductCard({
           </h3>
         </Link>
 
-        {/* Sizes preview */}
-        <div className="flex gap-1 mt-2 flex-wrap">
-          {product.sizes
-            .filter(s => s !== "P" && s !== "XGG")
-            .slice(0, 4)
-            .map((s) => (
-              <button
-                key={s}
-                onClick={() => setSelectedSize(s)}
-                className={`text-xs px-1.5 py-0.5 rounded border transition-colors ${
-                  selectedSize === s
-                    ? "border-[#0b1f3a] bg-[#0b1f3a] text-white"
-                    : "border-gray-200 text-gray-600 hover:border-[#0b1f3a]"
-                }`}
-              >
-                {s}
-              </button>
-            ))}
-          {product.sizes.filter(s => s !== "P" && s !== "XGG").length > 4 && (
-            <span className="text-xs text-gray-400 self-center">
-              +{product.sizes.filter(s => s !== "P" && s !== "XGG").length - 4}
-            </span>
-          )}
-        </div>
-
         {/* Price */}
         <div className="mt-2">
           {product.originalPrice && (
@@ -155,5 +153,136 @@ export function ProductCard({
         </button>
       </div>
     </motion.div>
+      {selectionOpen && typeof document !== "undefined" && createPortal(
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) setSelectionOpen(false);
+            }}
+          >
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={`product-options-${product.id}`}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.98 }}
+              className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            >
+              <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+                <div>
+                  <h2 id={`product-options-${product.id}`} className="text-lg font-700 text-[#0b1f3a]">
+                    Selecione as opções
+                  </h2>
+                  <p className="text-sm text-gray-500">Escolha a cor e o tamanho do produto.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectionOpen(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-gray-100"
+                  aria-label="Fechar seleção de opções"
+                >
+                  <X size={19} />
+                </button>
+              </div>
+
+              <div className="grid gap-5 p-5 sm:grid-cols-[160px_1fr]">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-gray-100">
+                  <Image src={product.images[0]} alt={product.name} fill className="object-cover" sizes="160px" />
+                </div>
+                <div className="space-y-5">
+                  <div>
+                    <p className="text-xs text-gray-500">{product.brand}</p>
+                    <h3 className="mt-1 font-600 text-gray-900">{product.name}</h3>
+                    <p className="mt-2 text-lg font-700 text-[#0b1f3a]">{formatPrice(product.price)}</p>
+                  </div>
+
+                  {colors.length > 0 && (
+                    <div>
+                      <p className="mb-2 text-sm font-600 text-gray-800">Cor</p>
+                      <div className="flex flex-wrap gap-2">
+                        {colors.map((color) => (
+                          <button
+                            key={color}
+                            type="button"
+                            onClick={() => setSelectedColor(color)}
+                            aria-pressed={selectedColor === color}
+                            className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-sm transition-colors ${
+                              selectedColor === color
+                                ? "border-[#0b1f3a] bg-[#e8edf7]"
+                                : "border-gray-200 hover:border-[#0b1f3a]"
+                            }`}
+                          >
+                            <span className={`h-4 w-4 rounded-full border border-gray-300 ${getColorClassName(color)}`} />
+                            {color}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {hasSizeOptions && (
+                    <div>
+                      <p className="mb-2 text-sm font-600 text-gray-800">Tamanho</p>
+                      <div className="flex flex-wrap gap-2">
+                        {product.sizes.map((size) => {
+                          const isAvailable = availableSizes.includes(size);
+                          return (
+                            <button
+                              key={size}
+                              type="button"
+                              disabled={!isAvailable}
+                              onClick={() => setSelectedSize(size)}
+                              aria-pressed={selectedSize === size}
+                              className={`rounded-lg border px-3.5 py-2 text-sm transition-colors ${
+                                !isAvailable
+                                  ? "cursor-not-allowed border-gray-100 bg-gray-50 text-gray-300 line-through"
+                                  : selectedSize === size
+                                    ? "border-[#0b1f3a] bg-[#0b1f3a] text-white"
+                                    : "border-gray-200 text-gray-700 hover:border-[#0b1f3a]"
+                              }`}
+                            >
+                              {size}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={confirmAdd}
+                    disabled={!canAdd}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#0b1f3a] py-3 text-sm font-600 text-white transition-colors hover:bg-[#153a72] disabled:cursor-not-allowed disabled:bg-gray-300"
+                  >
+                    <ShoppingCart size={17} />
+                    Adicionar ao carrinho
+                  </button>
+                  {!canAdd && (
+                    <p className="text-center text-xs text-gray-500">
+                      {hasSizeOptions && availableSizes.length === 0
+                        ? "Não há tamanhos disponíveis para este produto."
+                        : `Selecione ${
+                            colors.length && !selectedColor ? "a cor" : ""
+                          }${
+                            colors.length && !selectedColor && hasSizeOptions && !selectedSize ? " e " : ""
+                          }${
+                            hasSizeOptions && !selectedSize ? "o tamanho" : ""
+                          } para continuar.`}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>,
+          document.body
+      )}
+    </>
   );
 }

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CartItem, Product } from "@/types";
+import { getProductColors } from "@/lib/utils";
 
 const STORAGE_KEY = "azevedo-cart";
 
@@ -11,9 +12,9 @@ interface CartContextType {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  addItem: (product: Product, size: string) => void;
-  removeItem: (productId: string, size: string) => void;
-  updateQty: (productId: string, size: string, qty: number) => void;
+  addItem: (product: Product, size: string, color?: string) => void;
+  removeItem: (productId: string, size: string, color?: string) => void;
+  updateQty: (productId: string, size: string, qty: number, color?: string) => void;
   total: number;
   count: number;
   clearCart: () => void;
@@ -25,7 +26,23 @@ function loadFromStorage(): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+
+    const items: CartItem[] = JSON.parse(raw);
+    return items.map((item) => {
+      if (item.color) return item;
+
+      const legacyColor = getProductColors(item.product.color).find((color) =>
+        item.size.startsWith(`${color} - `)
+      );
+      if (!legacyColor) return item;
+
+      return {
+        ...item,
+        color: legacyColor,
+        size: item.size.slice(legacyColor.length + 3),
+      };
+    });
   } catch {
     return [];
   }
@@ -57,39 +74,39 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
 
-  const addItem = useCallback((product: Product, size: string) => {
+  const addItem = useCallback((product: Product, size: string, color?: string) => {
     setItems((prev) => {
       const existing = prev.find(
-        (i) => i.product.id === product.id && i.size === size
+        (i) => i.product.id === product.id && i.size === size && i.color === color
       );
       if (existing) {
         return prev.map((i) =>
-          i.product.id === product.id && i.size === size
+          i.product.id === product.id && i.size === size && i.color === color
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
       }
-      return [...prev, { product, size, quantity: 1 }];
+      return [...prev, { product, size, color, quantity: 1 }];
     });
     setToast(product.name);
     setTimeout(() => setToast(""), 2500);
   }, []);
 
-  const removeItem = useCallback((productId: string, size: string) => {
+  const removeItem = useCallback((productId: string, size: string, color?: string) => {
     setItems((prev) =>
-      prev.filter((i) => !(i.product.id === productId && i.size === size))
+      prev.filter((i) => !(i.product.id === productId && i.size === size && i.color === color))
     );
   }, []);
 
-  const updateQty = useCallback((productId: string, size: string, qty: number) => {
+  const updateQty = useCallback((productId: string, size: string, qty: number, color?: string) => {
     if (qty <= 0) {
       setItems((prev) =>
-        prev.filter((i) => !(i.product.id === productId && i.size === size))
+        prev.filter((i) => !(i.product.id === productId && i.size === size && i.color === color))
       );
     } else {
       setItems((prev) =>
         prev.map((i) =>
-          i.product.id === productId && i.size === size
+          i.product.id === productId && i.size === size && i.color === color
             ? { ...i, quantity: qty }
             : i
         )

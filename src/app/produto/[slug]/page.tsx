@@ -10,7 +10,12 @@ import {
   ZoomIn, Minus, Plus, Truck, RefreshCw, Shield, Bike, Store,
 } from "lucide-react";
 import { products } from "@/lib/data";
-import { formatPrice } from "@/lib/utils";
+import {
+  formatPrice,
+  getAvailableProductSizes,
+  getColorClassName,
+  getProductColors,
+} from "@/lib/utils";
 import { ProductBadge } from "@/components/ui/ProductBadge";
 import { ProductCard } from "@/components/product/ProductCard";
 import { useCart } from "@/lib/cart-context";
@@ -23,11 +28,14 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   if (!product) notFound();
 
   const { addItem } = useCart();
+  const colors = getProductColors(product.color);
+  const availableSizes = getAvailableProductSizes(product.sizes);
+  const hasSizeOptions = product.sizes.length > 0;
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
-  const [sizeError, setSizeError] = useState(false);
+  const [showSelectionError, setShowSelectionError] = useState(false);
   const [whatsappPickerOpen, setWhatsappPickerOpen] = useState(false);
   const [shareFeedback, setShareFeedback] = useState("");
   const [zoomed, setZoomed] = useState(false);
@@ -39,12 +47,23 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   ).slice(0, 4);
 
   const handleAddToCart = () => {
-    if (!selectedSize || !selectedColor) {
-      setSizeError(true);
+    if ((colors.length > 0 && !selectedColor) || (hasSizeOptions && !selectedSize)) {
+      setShowSelectionError(true);
       return;
     }
-    setSizeError(false);
-    for (let i = 0; i < qty; i++) addItem(product, `${selectedColor} - ${selectedSize}`);
+    setShowSelectionError(false);
+    for (let i = 0; i < qty; i++) {
+      addItem(product, selectedSize, selectedColor || undefined);
+    }
+  };
+
+  const handleWhatsAppOrder = () => {
+    if ((colors.length > 0 && !selectedColor) || (hasSizeOptions && !selectedSize)) {
+      setShowSelectionError(true);
+      return;
+    }
+    setShowSelectionError(false);
+    setWhatsappPickerOpen(true);
   };
 
   const handleShare = async () => {
@@ -84,7 +103,15 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
     window.setTimeout(() => setShareFeedback(""), 2500);
   };
 
-  const whatsappMessage = `Olá! Tenho interesse no produto:\n\n*${product.name}*\nCor: ${selectedColor || "a definir"}\nTamanho: ${selectedSize || "a definir"}\nQuantidade: ${qty}\nPreço: ${formatPrice(product.price)}\n\nMeu nome é: `;
+  const whatsappMessage = [
+    "Olá! Tenho interesse no produto:",
+    "",
+    `*${product.name}*`,
+    ...(selectedColor ? [`Cor: ${selectedColor}`] : []),
+    ...(selectedSize ? [`Tamanho: ${selectedSize}`] : []),
+    `Quantidade: ${qty}`,
+    `Preço: ${formatPrice(product.price)}`,
+  ].join("\n");
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -226,44 +253,38 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
           </div>
 
           {/* Colors */}
+          {colors.length > 0 && (
           <div className={!product.inStock ? "opacity-40 pointer-events-none select-none" : ""}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-600 text-gray-800">Cor</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              {product.color?.split(", ").map((color) => {
-                const colorMap: Record<string, string> = {
-                  "Preto": "bg-black",
-                  "Branco": "bg-white",
-                  "Musgo": "bg-[#4b5320]",
-                  "Bege": "bg-[#f5f5dc]",
-                  "Marrom": "bg-[#5d4037]",
-                };
-                const colorClass = colorMap[color] || "bg-gray-300";
-
-                return (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${
-                      selectedColor === color
-                        ? "border-[#0b1f3a] bg-[#e8edf7]"
-                        : "border-gray-200 hover:border-[#0b1f3a]"
-                    }`}
-                  >
-                    <span className={`w-4 h-4 rounded-full border border-gray-300 ${colorClass}`} />
-                    <span className={`text-xs font-500 transition-colors ${
-                      selectedColor === color ? "text-[#0b1f3a]" : "text-gray-700"
-                    }`}>
-                      {color}
-                    </span>
-                  </button>
-                );
-              })}
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => setSelectedColor(color)}
+                  aria-pressed={selectedColor === color}
+                  className={`group flex items-center gap-2 px-3 py-1.5 rounded-xl border-2 transition-all ${
+                    selectedColor === color
+                      ? "border-[#0b1f3a] bg-[#e8edf7]"
+                      : "border-gray-200 hover:border-[#0b1f3a]"
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full border border-gray-300 ${getColorClassName(color)}`} />
+                  <span className={`text-xs font-500 transition-colors ${
+                    selectedColor === color ? "text-[#0b1f3a]" : "text-gray-700"
+                  }`}>
+                    {color}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
+          )}
 
           {/* Size */}
+          {product.sizes.length > 0 && (
           <div className={!product.inStock ? "opacity-40 pointer-events-none select-none" : ""}>
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm font-600 text-gray-800">Tamanho</p>
@@ -277,7 +298,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                     onClick={() => {
                       if (!isUnavailable) {
                         setSelectedSize(s);
-                        setSizeError(false);
+                        setShowSelectionError(false);
                       }
                     }}
                     className={`px-4 py-2 rounded-xl border-2 text-sm font-500 transition-all ${
@@ -293,10 +314,17 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
                 );
               })}
             </div>
-            {sizeError && (
-              <p className="text-xs text-red-500 mt-1.5">Selecione um tamanho</p>
-            )}
           </div>
+          )}
+          {showSelectionError && (
+            <p className="text-xs text-red-500">
+              {hasSizeOptions && availableSizes.length === 0
+                ? "Não há tamanhos disponíveis para este produto."
+                : `Selecione ${colors.length > 0 && !selectedColor ? "a cor" : ""}${
+                    colors.length > 0 && !selectedColor && hasSizeOptions && !selectedSize ? " e " : ""
+                  }${hasSizeOptions && !selectedSize ? "o tamanho" : ""} para continuar.`}
+            </p>
+          )}
 
           {/* Quantity */}
           <div className={!product.inStock ? "opacity-40 pointer-events-none select-none" : ""}>
@@ -333,7 +361,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
             </button>
             <button
-              onClick={() => setWhatsappPickerOpen(true)}
+              onClick={handleWhatsAppOrder}
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-600 bg-green-600 text-white hover:bg-green-700 transition-colors active:scale-95"
             >
               <MessageCircle size={18} />

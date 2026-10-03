@@ -11,10 +11,15 @@ import { WhatsAppContactPicker } from "@/components/contact/WhatsAppContactPicke
 
 function buildWhatsAppMessage(items: ReturnType<typeof useCart>["items"], total: number) {
   const lines = items
-    .map((i) => `• ${i.product.name} - Tamanho: ${i.size}\n  Quantidade: ${i.quantity}`)
+    .map((i) => [
+      `• ${i.product.name}`,
+      ...(i.color ? [`  Cor: ${i.color}`] : []),
+      ...(i.size ? [`  Tamanho: ${i.size}`] : []),
+      `  Quantidade: ${i.quantity}`,
+    ].join("\n"))
     .join("\n\n");
 
-  return `Olá! Gostaria de fazer um pedido.\n\n*Produtos:*\n\n${lines}\n\n*Total:*\n${formatPrice(total)}\n\nMeu nome é: `;
+  return `Olá! Gostaria de fazer um pedido.\n\n*Produtos:*\n\n${lines}\n\n*Total:*\n${formatPrice(total)}`;
 }
 
 export function CartDrawer() {
@@ -84,7 +89,7 @@ export function CartDrawer() {
                 </div>
               ) : (
                 items.map((item) => (
-                  <div key={`${item.product.id}-${item.size}`} className="flex gap-3">
+                  <div key={`${item.product.id}-${item.color || ""}-${item.size}`} className="flex gap-3">
                     <Link
                       href={`/produto/${item.product.slug}`}
                       onClick={closeCart}
@@ -102,26 +107,31 @@ export function CartDrawer() {
                       <p className="text-sm font-600 text-gray-900 leading-tight line-clamp-2">
                         {item.product.name}
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">Tamanho: {item.size}</p>
+                      {item.color && (
+                        <p className="text-xs text-gray-500 mt-0.5">Cor: {item.color}</p>
+                      )}
+                      {item.size && (
+                        <p className="text-xs text-gray-500 mt-0.5">Tamanho: {item.size}</p>
+                      )}
                       <p className="text-sm font-700 text-[#0b1f3a] mt-1">
                         {formatPrice(item.product.price)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
-                          onClick={() => updateQty(item.product.id, item.size, item.quantity - 1)}
+                          onClick={() => updateQty(item.product.id, item.size, item.quantity - 1, item.color)}
                           className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#0b1f3a] transition-colors"
                         >
                           <Minus size={12} />
                         </button>
                         <span className="text-sm font-600 w-6 text-center">{item.quantity}</span>
                         <button
-                          onClick={() => updateQty(item.product.id, item.size, item.quantity + 1)}
+                          onClick={() => updateQty(item.product.id, item.size, item.quantity + 1, item.color)}
                           className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#0b1f3a] transition-colors"
                         >
                           <Plus size={12} />
                         </button>
                         <button
-                          onClick={() => removeItem(item.product.id, item.size)}
+                          onClick={() => removeItem(item.product.id, item.size, item.color)}
                           className="ml-auto text-gray-400 hover:text-red-500 transition-colors"
                           aria-label="Remover item"
                         >

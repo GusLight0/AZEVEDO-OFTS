@@ -44,15 +44,22 @@ export function CategoriesSection() {
                 </span>
               </Link>
             ) : (
-              <div className="group flex w-[72px] flex-col items-center gap-1 md:w-[100px] md:gap-3 cursor-not-allowed opacity-60 grayscale">
+              <div
+                className="group flex w-[72px] flex-col items-center gap-1 md:w-[100px] md:gap-3 cursor-not-allowed"
+                aria-label={`${cat.name} — indisponível`}
+                title={`${cat.name} indisponível no momento`}
+              >
                 <div className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-gray-200">
                   <Image
                     src={cat.image}
                     alt={cat.name}
                     fill
-                    className="object-cover"
+                    className="object-cover grayscale opacity-60"
                     sizes="(max-width: 767px) 72px, 100px"
                   />
+                  <span className="absolute inset-x-0 bottom-2 bg-red-700/95 px-0.5 py-1 text-center text-[7px] font-700 tracking-wide text-white md:text-[9px]">
+                    INDISPONÍVEL
+                  </span>
                 </div>
                 <span className="text-[10px] md:text-sm font-600 text-gray-500 text-center leading-tight">
                   {cat.name}
