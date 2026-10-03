@@ -177,7 +177,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               <p className="text-sm font-600 text-gray-800">Cor</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              {product.color.split(", ").map((color) => {
+              {product.color?.split(", ").map((color) => {
                 const colorMap: Record<string, string> = {
                   "Preto": "bg-black",
                   "Branco": "bg-white",

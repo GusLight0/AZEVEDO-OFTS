@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
 interface BlurRevealProps extends HTMLMotionProps<"div"> {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ export const BlurReveal = ({
   blurAmount = 8,
   offset = 15,
   ...props
-}, ref_prop): JSX.Element | null => {
+}: BlurRevealProps): React.ReactElement => {
   const [isVisible, setIsVisible] = useState(false);
   const domRef = useRef<HTMLDivElement>(null);
 
@@ -34,11 +34,7 @@ export const BlurReveal = ({
       observer.observe(domRef.current);
     }
 
-    return () => {
-      if (domRef.current) {
-        observer.unobserve(domRef.current);
-      }
-    };
+    return () => observer.disconnect();
   }, []);
 
   return (
