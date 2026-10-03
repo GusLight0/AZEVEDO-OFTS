@@ -1,0 +1,367 @@
+"use client";
+
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { products, categories } from "@/lib/data";
+import { searchMatch } from "@/lib/utils";
+import { ProductCard } from "@/components/product/ProductCard";
+import { ProductCardSkeleton } from "@/components/product/ProductCardSkeleton";
+
+const SORT_OPTIONS = [
+  { value: "relevance", label: "Relevância" },
+  { value: "price-asc", label: "Menor preço" },
+  { value: "price-desc", label: "Maior preço" },
+  { value: "discount", label: "Promoções" },
+  { value: "az", label: "A–Z" },
+  { value: "za", label: "Z–A" },
+];
+
+const SIZES = ["P", "M", "G", "GG", "XGG", "38", "39", "40", "41", "42", "43", "44"];
+
+export default function ProdutosClient() {
+  const searchParams = useSearchParams();
+  const qParam = searchParams.get("q") || "";
+  const catParam = searchParams.get("categoria") || "";
+  const promoParam = searchParams.get("promo") === "true";
+
+  const [query, setQuery] = useState(qParam);
+  const [selectedCat, setSelectedCat] = useState(catParam);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [onlyPromo, setOnlyPromo] = useState(promoParam);
+  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [sort, setSort] = useState("relevance");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    setQuery(qParam);
+    setSelectedCat(catParam);
+    setOnlyPromo(promoParam);
+  }, [qParam, catParam, promoParam]);
+
+  const filtered = useMemo(() => {
+    let list = [...products];
+
+    if (query) {
+      list = list.filter((p) =>
+        searchMatch(
+          query,
+          p.name, p.description, p.category, p.brand,
+          p.team, p.color, p.collection,
+          ...(p.tags || [])
+        )
+      );
+    }
+
+    if (selectedCat) {
+      if (selectedCat === "camisas-polo") {
+        list = list.filter((p) =>
+          p.category === "camisas" &&
+          (p.name.toLowerCase().includes("polo") || p.tags?.some(t => t.toLowerCase().includes("polo")))
+        );
+      } else {
+        list = list.filter((p) => p.category === selectedCat);
+      }
+    }
+
+    if (selectedSizes.length > 0) {
+      list = list.filter((p) => selectedSizes.some((s) => p.sizes.includes(s)));
+    }
+    if (onlyPromo) list = list.filter((p) => p.discount && p.discount > 0);
+    if (onlyInStock) list = list.filter((p) => p.inStock);
+
+    switch (sort) {
+      case "price-asc": list.sort((a, b) => a.price - b.price); break;
+      case "price-desc": list.sort((a, b) => b.price - a.price); break;
+      case "discount": list.sort((a, b) => (b.discount || 0) - (a.discount || 0)); break;
+      case "az": list.sort((a, b) => a.name.localeCompare(b.name)); break;
+      case "za": list.sort((a, b) => b.name.localeCompare(a.name)); break;
+    }
+
+    return list;
+  }, [query, selectedCat, selectedSizes, onlyPromo, onlyInStock, sort]);
+
+  const toggleSize = (s: string) => {
+    setSelectedSizes((prev) =>
+      prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]
+    );
+  };
+
+  const clearFilters = () => {
+    setQuery("");
+    setSelectedCat("");
+    setSelectedSizes([]);
+    setOnlyPromo(false);
+    setOnlyInStock(false);
+    setSort("relevance");
+  };
+
+  const hasFilters = !!(query || selectedCat || selectedSizes.length > 0 || onlyPromo || onlyInStock);
+
+  const FilterPanel = () => {
+    const [expandedCats, setExpandedCats] = useState<string[]>([]);
+
+    const toggleCat = (slug: string) => {
+      setExpandedCats(prev =>
+        prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]
+      );
+    };
+
+    return (
+      <div className="space-y-6">
+        <div>
+          <p className="text-sm font-semibold text-gray-800 mb-3">Categoria</p>
+          <div className="space-y-1">
+            <button
+              onClick={() => setSelectedCat("")}
+              className={`block w-full text-left text-sm px-3 py-1.5 rounded-lg transition-colors ${
+                !selectedCat ? "bg-[#0b1f3a] text-white" : "text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              Todas
+            </button>
+            {categories.map((c) => (
+              <div key={c.slug} className="space-y-1">
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => toggleCat(c.slug)}
+                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  >
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-200 ${expandedCats.includes(c.slug) ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  <button
+                    onClick={() => setSelectedCat(c.slug)}
+                    className={`block w-full text-left text-sm px-2 py-1.5 rounded-lg transition-colors ${
+                      selectedCat === c.slug ? "bg-[#0b1f3a] text-white" : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {c.name}
+                  </button>
+                </div>
+                <AnimatePresence>
+                  {expandedCats.includes(c.slug) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      {c.slug === "camisas" ? (
+                        <button
+                          onClick={() => setSelectedCat("camisas-polo")}
+                          className={`block w-full text-left text-xs pl-8 py-1.5 rounded-lg transition-colors ${
+                            selectedCat === "camisas-polo" ? "bg-blue-100 text-[#0b1f3a] font-600" : "text-gray-500 hover:bg-gray-100"
+                          }`}
+                        >
+                          Camisas Polo
+                        </button>
+                      ) : (
+                        c.subcategories.map((sub) => (
+                          <button
+                            key={sub.slug}
+                            onClick={() => setSelectedCat(`${c.slug}-${sub.slug}`)}
+                            className={`block w-full text-left text-xs pl-8 py-1.5 rounded-lg transition-colors ${
+                              selectedCat === `${c.slug}-${sub.slug}` ? "bg-blue-100 text-[#0b1f3a] font-600" : "text-gray-500 hover:bg-gray-100"
+                            }`}
+                          >
+                            {sub.name}
+                          </button>
+                        ))
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-gray-800 mb-3">Tamanho</p>
+          <div className="flex flex-wrap gap-2">
+            {SIZES.map((s) => (
+              <button
+                key={s}
+                onClick={() => toggleSize(s)}
+                className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                  selectedSizes.includes(s)
+                    ? "border-[#0b1f3a] bg-[#0b1f3a] text-white"
+                    : "border-gray-200 text-gray-600 hover:border-[#0b1f3a]"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={onlyPromo}
+              onChange={(e) => setOnlyPromo(e.target.checked)}
+              className="w-4 h-4 accent-[#0b1f3a]"
+            />
+            <span className="text-sm text-gray-700">Somente promoções</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={onlyInStock}
+              onChange={(e) => setOnlyInStock(e.target.checked)}
+              className="w-4 h-4 accent-[#0b1f3a]"
+            />
+            <span className="text-sm text-gray-700">Somente disponíveis</span>
+          </label>
+        </div>
+        {hasFilters && (
+          <button
+            onClick={clearFilters}
+            className="w-full text-sm text-red-500 hover:text-red-700 font-medium transition-colors"
+          >
+            Limpar filtros
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Desktop Sidebar */}
+        <aside className="hidden md:block w-56 flex-shrink-0">
+          <div className="sticky top-36">
+            <h2 className="font-bold text-lg text-[#0b1f3a] mb-5">Filtros</h2>
+            <FilterPanel />
+          </div>
+        </aside>
+
+        {/* Main */}
+        <div className="flex-1 min-w-0">
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
+            <p className="text-sm text-gray-500">
+              <span className="font-semibold text-gray-800">{filtered.length}</span> produtos encontrados
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setFiltersOpen(true)}
+                className="md:hidden flex items-center gap-2 text-sm font-medium text-gray-700 border border-gray-200 px-3 py-2 rounded-lg hover:border-[#0b1f3a] transition-colors"
+              >
+                <SlidersHorizontal size={15} />
+                Filtros
+                {hasFilters && (
+                  <span className="bg-[#0b1f3a] text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">!</span>
+                )}
+              </button>
+
+              <div className="relative">
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="appearance-none text-sm border border-gray-200 rounded-lg px-3 py-2 pr-8 text-gray-700 focus:outline-none focus:border-[#0b1f3a] bg-white cursor-pointer"
+                >
+                  {SORT_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
+          {/* Active filter tags */}
+          {hasFilters && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {query && (
+                <span className="flex items-center gap-1 text-xs bg-[#e8edf7] text-[#0b1f3a] px-2.5 py-1 rounded-full font-medium">
+                  &quot;{query}&quot;
+                  <button onClick={() => setQuery("")}><X size={12} /></button>
+                </span>
+              )}
+              {selectedCat && (
+                <span className="flex items-center gap-1 text-xs bg-[#e8edf7] text-[#0b1f3a] px-2.5 py-1 rounded-full font-medium">
+                  {categories.find((c) => c.slug === selectedCat)?.name ||
+                   (selectedCat === "camisas-polo" ? "Camisas Polo" : selectedCat)}
+                  <button onClick={() => setSelectedCat("")}><X size={12} /></button>
+                </span>
+              )}
+              {selectedSizes.map((s) => (
+                <span key={s} className="flex items-center gap-1 text-xs bg-[#e8edf7] text-[#0b1f3a] px-2.5 py-1 rounded-full font-medium">
+                  {s}
+                  <button onClick={() => toggleSize(s)}><X size={12} /></button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Grid */}
+          {filtered.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+              {filtered.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-gray-400 text-lg mb-2">Nenhum produto encontrado.</p>
+              <button
+                onClick={clearFilters}
+                className="text-sm text-[#0b1f3a] font-medium hover:underline"
+              >
+                Limpar filtros e ver todos
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Filter Drawer */}
+      <AnimatePresence>
+        {filtersOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setFiltersOpen(false)}
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed left-0 top-0 h-full w-72 bg-white z-50 flex flex-col shadow-2xl md:hidden"
+            >
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 className="font-bold text-gray-900">Filtros</h2>
+                <button
+                  onClick={() => setFiltersOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-5">
+                <FilterPanel />
+              </div>
+              <div className="px-5 py-4 border-t border-gray-100">
+                <button
+                  onClick={() => setFiltersOpen(false)}
+                  className="w-full bg-[#0b1f3a] text-white py-3 rounded-xl font-semibold hover:bg-[#153a72] transition-colors"
+                >
+                  Ver {filtered.length} produtos
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
