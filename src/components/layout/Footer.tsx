@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { whatsappContacts } from "@/lib/whatsapp";
 import { MessageCircle, Camera, MapPin, Clock } from "lucide-react";
 
 export function Footer() {
@@ -24,7 +25,7 @@ export function Footer() {
               <Camera size={16} />
             </a>
               <a
-              href="https://wa.me/5598991856123"
+                href={`https://wa.me/${whatsappContacts[0].phone}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
@@ -89,9 +90,11 @@ export function Footer() {
               <MessageCircle size={15} className="mt-0.5 flex-shrink-0" />
               <div className="flex flex-col gap-1">
                 <span className="font-600">WhatsApp:</span>
-                <span className="pl-1 opacity-90">(98) 99185-6123</span>
-                <span className="pl-1 opacity-90">(98) 98414-3767</span>
-                <span className="pl-1 opacity-90">(98) 99116-8586</span>
+                {whatsappContacts.map((contact) => (
+                  <span key={contact.phone} className="pl-1 opacity-90">
+                    {contact.name}: {contact.display}
+                  </span>
+                ))}
               </div>
             </li>
             <li className="flex items-start gap-2 text-sm text-blue-100">

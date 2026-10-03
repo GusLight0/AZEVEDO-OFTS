@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MessageCircle, Camera, Clock, MapPin } from "lucide-react";
+import { getWhatsAppUrl, whatsappContacts } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Contato",
@@ -7,22 +8,16 @@ export const metadata: Metadata = {
 };
 
 export default function ContatoPage() {
-  const whatsappNumbers = [
-    { name: "Atendimento 1", phone: "5598991856123", display: "(98) 99185-6123" },
-    { name: "Atendimento 2", phone: "5598984143767", display: "(98) 98414-3767" },
-    { name: "Atendimento 3", phone: "5598991168586", display: "(98) 99116-8586" },
-  ];
-
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-700 text-[#0b1f3a] mb-2">Contato</h1>
       <p className="text-gray-500 mb-10">Estamos aqui para ajudar. Fale conosco!</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        {whatsappNumbers.map((num, i) => (
+        {whatsappContacts.map((num) => (
           <a
-            key={i}
-            href={`https://wa.me/${num.phone}`}
+            key={num.phone}
+            href={getWhatsAppUrl(num.phone)}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-start gap-4 p-5 bg-green-50 border border-green-100 rounded-2xl hover:bg-green-100 transition-colors group"

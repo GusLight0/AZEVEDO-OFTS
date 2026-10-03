@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  ShoppingCart, MessageCircle, ChevronRight,
+  ShoppingCart, MessageCircle, ChevronRight, Share2,
   ZoomIn, Minus, Plus, Truck, RefreshCw, Shield, Bike, Store,
 } from "lucide-react";
 import { products } from "@/lib/data";
@@ -14,9 +14,8 @@ import { formatPrice } from "@/lib/utils";
 import { ProductBadge } from "@/components/ui/ProductBadge";
 import { ProductCard } from "@/components/product/ProductCard";
 import { useCart } from "@/lib/cart-context";
+import { WhatsAppContactPicker } from "@/components/contact/WhatsAppContactPicker";
 import { use, useRef } from "react";
-
-const WHATSAPP_NUMBER = "5511999999999";
 
 export default function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -29,6 +28,8 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
   const [selectedColor, setSelectedColor] = useState("");
   const [qty, setQty] = useState(1);
   const [sizeError, setSizeError] = useState(false);
+  const [whatsappPickerOpen, setWhatsappPickerOpen] = useState(false);
+  const [shareFeedback, setShareFeedback] = useState("");
   const [zoomed, setZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const imageRef = useRef<HTMLDivElement>(null);
@@ -46,12 +47,44 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
     for (let i = 0; i < qty; i++) addItem(product, `${selectedColor} - ${selectedSize}`);
   };
 
-  const handleWhatsApp = () => {
-    const msg = encodeURIComponent(
-      `Olá! Tenho interesse no produto:\n\n*${product.name}*\nTamanho: ${selectedSize || "a definir"}\nQuantidade: ${qty}\nPreço: ${formatPrice(product.price)}\n\nMeu nome é: `
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+  const handleShare = async () => {
+    const url = new URL(`/produto/${product.slug}`, window.location.origin).toString();
+
+    try {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: product.name, url });
+          setShareFeedback("Produto compartilhado");
+          window.setTimeout(() => setShareFeedback(""), 2500);
+          return;
+        } catch (error) {
+          if (error instanceof Error && error.name === "AbortError") return;
+        }
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const input = document.createElement("textarea");
+        input.value = url;
+        input.setAttribute("readonly", "");
+        input.style.position = "fixed";
+        input.style.opacity = "0";
+        document.body.appendChild(input);
+        input.select();
+        const copied = document.execCommand("copy");
+        input.remove();
+        if (!copied) throw new Error("Não foi possível copiar o link.");
+      }
+      setShareFeedback("Link copiado");
+    } catch {
+      setShareFeedback("Não foi possível compartilhar.");
+    }
+
+    window.setTimeout(() => setShareFeedback(""), 2500);
   };
+
+  const whatsappMessage = `Olá! Tenho interesse no produto:\n\n*${product.name}*\nCor: ${selectedColor || "a definir"}\nTamanho: ${selectedSize || "a definir"}\nQuantidade: ${qty}\nPreço: ${formatPrice(product.price)}\n\nMeu nome é: `;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -144,11 +177,32 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
           transition={{ duration: 0.4 }}
           className="space-y-5"
         >
-          <div>
-            <p className="text-sm text-gray-400 font-500">{product.brand}</p>
-            <h1 className="text-2xl md:text-3xl font-700 text-gray-900 leading-tight mt-1">
-              {product.name}
-            </h1>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm text-gray-400 font-500">{product.brand}</p>
+              <h1 className="text-2xl md:text-3xl font-700 text-gray-900 leading-tight mt-1">
+                {product.name}
+              </h1>
+            </div>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => void handleShare()}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 text-[#0b1f3a] transition-colors hover:border-[#0b1f3a] hover:bg-[#e8edf7]"
+                aria-label={`Compartilhar ${product.name}`}
+                title="Compartilhar produto"
+              >
+                <Share2 size={18} />
+              </button>
+              {shareFeedback && (
+                <span
+                  role="status"
+                  className="absolute right-0 top-12 z-20 whitespace-nowrap rounded-lg bg-gray-900 px-2.5 py-1.5 text-xs text-white shadow"
+                >
+                  {shareFeedback}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Price */}
@@ -279,7 +333,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               {product.inStock ? "Adicionar ao Carrinho" : "Indisponível"}
             </button>
             <button
-              onClick={handleWhatsApp}
+              onClick={() => setWhatsappPickerOpen(true)}
               className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl font-600 bg-green-600 text-white hover:bg-green-700 transition-colors active:scale-95"
             >
               <MessageCircle size={18} />
@@ -303,6 +357,13 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
           </div>
         </motion.div>
       </div>
+      {whatsappPickerOpen && (
+        <WhatsAppContactPicker
+          message={whatsappMessage}
+          onClose={() => setWhatsappPickerOpen(false)}
+          onSelect={() => setWhatsappPickerOpen(false)}
+        />
+      )}
 
       {/* Description */}
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">

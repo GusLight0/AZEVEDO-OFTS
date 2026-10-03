@@ -11,7 +11,13 @@ import { ProductBadge } from "@/components/ui/ProductBadge";
 import { useCart } from "@/lib/cart-context";
 import { useFavorites } from "@/lib/favorites-context";
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({
+  product,
+  horizontalOnMobile = false,
+}: {
+  product: Product;
+  horizontalOnMobile?: boolean;
+}) {
   const { addItem } = useCart();
   const { toggle, isFavorited } = useFavorites();
   const liked = isFavorited(product.id);
@@ -32,10 +38,19 @@ export function ProductCard({ product }: { product: Product }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.3 }}
-      className="group relative bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+      className={`group relative bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 ${
+        horizontalOnMobile
+          ? "flex flex-row shadow-md md:block md:shadow-none hover:translate-y-0 md:hover:-translate-y-2"
+          : "hover:-translate-y-2"
+      }`}
     >
       {/* Image */}
-      <Link href={`/produto/${product.slug}`} className="block relative overflow-hidden aspect-[3/4]">
+      <Link
+        href={`/produto/${product.slug}`}
+        className={`relative block overflow-hidden aspect-[3/4] ${
+          horizontalOnMobile ? "w-[38%] min-h-[220px] shrink-0 aspect-auto md:w-full md:min-h-0 md:aspect-[3/4]" : ""
+        }`}
+      >
         <Image
           src={product.images[0]}
           alt={product.name}
@@ -49,18 +64,6 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Badge */}
         <ProductBadge badge={product.badge} discount={product.discount} />
 
-        {/* Favorite */}
-        <button
-          onClick={(e) => { e.preventDefault(); toggle(product); }}
-          className="absolute top-2 right-2 z-10 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white"
-          aria-label="Favoritar"
-        >
-          <Heart
-            size={15}
-            className={liked ? "fill-red-500 text-red-500" : "text-gray-600"}
-          />
-        </button>
-
         {/* Overlay esgotado */}
         {!product.inStock && (
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
@@ -71,8 +74,25 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </Link>
 
+      <div className="absolute right-2 top-2 z-20">
+        <button
+          type="button"
+          onClick={() => toggle(product)}
+          className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-colors hover:bg-white ${
+            liked ? "text-red-500" : "text-gray-600"
+          }`}
+          aria-label={liked ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+        >
+          <Heart size={15} className={liked ? "fill-red-500" : ""} />
+        </button>
+      </div>
+
       {/* Info */}
-      <div className="p-3">
+      <div
+        className={`p-3 ${
+          horizontalOnMobile ? "flex min-w-0 flex-1 flex-col justify-between pt-12 md:block md:pt-3" : ""
+        }`}
+      >
         <Link href={`/produto/${product.slug}`}>
           <p className="text-xs text-gray-500 mb-0.5">{product.brand}</p>
           <h3 className="text-sm font-600 text-gray-900 leading-tight line-clamp-2 hover:text-[#0b1f3a] transition-colors">

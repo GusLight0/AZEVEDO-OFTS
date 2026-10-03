@@ -63,3 +63,10 @@ body {
   overflow-x: hidden;
   max-width: 100vw;
 }
+
+.categories-scroll {
+  scrollbar-width: none;
+}
+.categories-scroll::-webkit-scrollbar {
+  display: none;
+}

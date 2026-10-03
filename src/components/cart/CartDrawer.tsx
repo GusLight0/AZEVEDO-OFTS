@@ -1,27 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingBag, Plus, Minus, Trash2, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils";
-
-const WHATSAPP_NUMBER = "5511999999999"; // Substitua pelo número real
+import { WhatsAppContactPicker } from "@/components/contact/WhatsAppContactPicker";
 
 function buildWhatsAppMessage(items: ReturnType<typeof useCart>["items"], total: number) {
   const lines = items
     .map((i) => `• ${i.product.name} - Tamanho: ${i.size}\n  Quantidade: ${i.quantity}`)
     .join("\n\n");
 
-  return encodeURIComponent(
-    `Olá! Gostaria de fazer um pedido.\n\n*Produtos:*\n\n${lines}\n\n*Total:*\n${formatPrice(total)}\n\nMeu nome é: `
-  );
+  return `Olá! Gostaria de fazer um pedido.\n\n*Produtos:*\n\n${lines}\n\n*Total:*\n${formatPrice(total)}\n\nMeu nome é: `;
 }
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, total, count } = useCart();
+  const [whatsappPickerOpen, setWhatsappPickerOpen] = useState(false);
 
   // Bloquear scroll quando aberto
   useEffect(() => {
@@ -29,10 +27,7 @@ export function CartDrawer() {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  const handleWhatsApp = () => {
-    const msg = buildWhatsAppMessage(items, total);
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-  };
+  const whatsappMessage = buildWhatsAppMessage(items, total);
 
   return (
     <AnimatePresence>
@@ -152,7 +147,7 @@ export function CartDrawer() {
                     : `Faltam ${formatPrice(299 - total)} para frete grátis`}
                 </p>
                 <button
-                  onClick={handleWhatsApp}
+                  onClick={() => setWhatsappPickerOpen(true)}
                   className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3.5 rounded-xl font-600 transition-colors active:scale-95"
                 >
                   <MessageCircle size={18} />
@@ -167,6 +162,16 @@ export function CartDrawer() {
               </div>
             )}
           </motion.div>
+          {whatsappPickerOpen && (
+            <WhatsAppContactPicker
+              message={whatsappMessage}
+              onClose={() => setWhatsappPickerOpen(false)}
+              onSelect={() => {
+                setWhatsappPickerOpen(false);
+                closeCart();
+              }}
+            />
+          )}
         </>
       )}
     </AnimatePresence>

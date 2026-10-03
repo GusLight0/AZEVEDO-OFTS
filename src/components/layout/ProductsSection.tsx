@@ -6,9 +6,15 @@ interface ProductsSectionProps {
   title: string;
   products: Product[];
   viewAllHref?: string;
+  horizontalCardsOnMobile?: boolean;
 }
 
-export function ProductsSection({ title, products, viewAllHref }: ProductsSectionProps) {
+export function ProductsSection({
+  title,
+  products,
+  viewAllHref,
+  horizontalCardsOnMobile = false,
+}: ProductsSectionProps) {
   if (products.length === 0) return null;
 
   return (
@@ -21,9 +27,17 @@ export function ProductsSection({ title, products, viewAllHref }: ProductsSectio
           </Link>
         )}
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+      <div
+        className={`grid ${
+          horizontalCardsOnMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-2"
+        } md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4`}
+      >
         {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
+          <ProductCard
+            key={p.id}
+            product={p}
+            horizontalOnMobile={horizontalCardsOnMobile}
+          />
         ))}
       </div>
     </section>
