@@ -235,26 +235,16 @@ export function Header() {
                         {iconMap[cat.icon]}
                         {cat.name}
                       </Link>
-                      {cat.slug === "camisas" ? (
-                        <Link
-                          href={`/produtos?categoria=${cat.slug}&sub=polo`}
-                          onClick={() => setMegaOpen(false)}
-                          className="block text-xs text-gray-500 hover:text-[#0b1f3a] py-0.5 pl-5 transition-colors"
-                        >
-                          Camisas Polo
-                        </Link>
-                      ) : (
-                        cat.subcategories.map((sub) => (
-                          <Link
-                            key={sub.slug}
-                            href={`/produtos?categoria=${cat.slug}&sub=${sub.slug}`}
-                            onClick={() => setMegaOpen(false)}
-                            className="block text-xs text-gray-500 hover:text-[#0b1f3a] py-0.5 pl-5 transition-colors"
-                          >
-                            {sub.name}
-                          </Link>
-                        ))
-                      )}
+                    {cat.subcategories.map((sub) => (
+                      <Link
+                        key={sub.slug}
+                        href={`/produtos?categoria=${cat.slug}&sub=${sub.slug}`}
+                        onClick={() => setMegaOpen(false)}
+                        className="block text-xs text-gray-500 hover:text-[#0b1f3a] py-0.5 pl-5 transition-colors"
+                      >
+                        {sub.name}
+                      </Link>
+                    ))}
                     </div>
                   ))}
                 </motion.div>
@@ -310,44 +300,7 @@ export function Header() {
               </div>
 
               <div className="flex-1 overflow-y-auto py-4">
-                {/* Categorias */}
-                <p className="px-5 text-xs font-600 text-gray-400 uppercase tracking-wider mb-2">
-                  Categorias
-                </p>
-                {categories.map((cat) => (
-                  <div key={cat.slug}>
-                    <Link
-                      href={`/produtos?categoria=${cat.slug}`}
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 px-5 py-2.5 text-sm font-500 text-gray-800 hover:bg-gray-50 transition-colors"
-                    >
-                      {iconMap[cat.icon]}
-                      {cat.name}
-                    </Link>
-                    {cat.slug === "camisas" ? (
-                      <Link
-                        href={`/produtos?categoria=${cat.slug}&sub=polo`}
-                        onClick={() => setMobileOpen(false)}
-                        className="block pl-12 pr-5 py-1.5 text-xs text-gray-500 hover:text-[#0b1f3a] hover:bg-gray-50 transition-colors"
-                      >
-                        Camisas Polo
-                      </Link>
-                    ) : (
-                      cat.subcategories.map((sub) => (
-                        <Link
-                          key={sub.slug}
-                          href={`/produtos?categoria=${cat.slug}&sub=${sub.slug}`}
-                          onClick={() => setMobileOpen(false)}
-                          className="block pl-12 pr-5 py-1.5 text-xs text-gray-500 hover:text-[#0b1f3a] hover:bg-gray-50 transition-colors"
-                        >
-                          {sub.name}
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                ))}
-
-                <div className="border-t border-gray-100 mt-4 pt-4">
+                <div className="border-b border-gray-100 pb-4 mb-4">
                   <p className="px-5 text-xs font-600 text-gray-400 uppercase tracking-wider mb-2">
                     Menu
                   </p>
@@ -360,6 +313,34 @@ export function Header() {
                     >
                       {link.label}
                     </Link>
+                  ))}
+                </div>
+
+                <div>
+                  <p className="px-5 text-xs font-600 text-gray-400 uppercase tracking-wider mb-2">
+                    Categorias
+                  </p>
+                  {categories.map((cat) => (
+                    <div key={cat.slug}>
+                      <Link
+                        href={`/produtos?categoria=${cat.slug}`}
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-3 px-5 py-2.5 text-sm font-500 text-gray-800 hover:bg-gray-50 transition-colors"
+                      >
+                        {iconMap[cat.icon]}
+                        {cat.name}
+                      </Link>
+                      {cat.subcategories.map((sub) => (
+                        <Link
+                          key={sub.slug}
+                          href={`/produtos?categoria=${cat.slug}&sub=${sub.slug}`}
+                          onClick={() => setMobileOpen(false)}
+                          className="block pl-12 pr-5 py-1.5 text-xs text-gray-500 hover:text-[#0b1f3a] hover:bg-gray-50 transition-colors"
+                        >
+                          {sub.name}
+                        </Link>
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>

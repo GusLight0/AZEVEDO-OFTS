@@ -11,12 +11,12 @@ const allProducts: Product[] = [
     originalPrice: 99.99,
     discount: 15,
     images: [
-      "/images/roupas/camisa-polo-1.png",
-      "/images/roupas/camisa-polo-2.png",
-      "/images/roupas/camisa-polo-3.png",
-      "/images/roupas/camisa-polo-4.png",
-      "/images/roupas/camisa-polo-5.png",
-      "/images/roupas/camisa-polo-6.png",
+      "/images/roupas/camisas-polo/camisa-polo-1.png",
+      "/images/roupas/camisas-polo/camisa-polo-2.png",
+      "/images/roupas/camisas-polo/camisa-polo-3.png",
+      "/images/roupas/camisas-polo/camisa-polo-4.png",
+      "/images/roupas/camisas-polo/camisa-polo-5.png",
+      "/images/roupas/camisas-polo/camisa-polo-6.png",
     ],
     category: "camisas",
     subcategory: "polo",
@@ -46,6 +46,7 @@ export const categories: Category[] = [
     image: "/images/categorias/img-categorias-camisa.png",
     subcategories: [
       { name: "Camisas Polo", slug: "polo" },
+      { name: "Camisas Casuais", slug: "casual" },
     ],
   },
   {
