@@ -42,6 +42,12 @@ export function getColorClassName(color: string): string {
     Musgo: "bg-[#4b5320]",
     Bege: "bg-[#f5f5dc]",
     Marrom: "bg-[#5d4037]",
+    "Off-white": "bg-[#faf9f6]",
+    "Azul Marinho": "bg-[#000080]",
+    "Azul Escuro": "bg-[#00008b]",
+    "Vermelho": "bg-red-600",
+    "Azul Claro": "bg-blue-300",
+    Cinza: "bg-gray-400",
   };
 
   return colorMap[color] || "bg-gray-300";
