@@ -24,14 +24,7 @@ export function SearchBar({ mobile = false, onClose }: SearchBarProps) {
     ? products.filter((p) =>
         searchMatch(
           query,
-          p.name,
-          p.description,
-          p.category,
-          p.brand,
-          p.team,
-          p.color,
-          p.collection,
-          ...(p.tags || [])
+          p.name
         )
       ).slice(0, 6)
     : [];

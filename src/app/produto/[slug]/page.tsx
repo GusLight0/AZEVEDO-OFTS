@@ -161,7 +161,7 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               src={product.images[selectedImage]}
               alt={product.name}
               fill
-              className={`object-cover transition-transform duration-200 ${
+              className={`object-contain transition-transform duration-200 ${
                 !product.inStock ? "grayscale" : ""
               }`}
               style={{
@@ -375,7 +375,6 @@ export default function ProductPage({ params }: { params: Promise<{ slug: string
               { icon: <Store size={16} />, text: "Retirada no local disponível" },
               { icon: <Bike size={16} />, text: "Entrega a combinar via WhatsApp" },
               { icon: <Shield size={16} />, text: "Taxa fixa de entrega: R$ 7,00" },
-              { icon: <Shield size={16} />, text: "Produto original" },
             ].map((g) => (
               <div key={g.text} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                 <span className="text-[#0b1f3a]">{g.icon}</span>
