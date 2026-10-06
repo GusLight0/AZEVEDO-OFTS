@@ -100,9 +100,10 @@ export function CategoryCampaign() {
               <Image
                 src={campaign.image}
                 alt={campaign.label}
-                width={500}
-                height={650}
+                width={1500}
+                height={1950}
                 sizes="(max-width: 767px) 100vw, 33vw"
+                quality={100}
                 className="block h-auto w-full"
               />
               <span
@@ -158,9 +159,10 @@ export function CategoryCampaign() {
               <Image
                 src={campaign.image}
                 alt={campaign.label}
-                width={500}
-                height={650}
+                width={1500}
+                height={1950}
                 sizes="33vw"
+                quality={100}
                 className="block h-auto w-full"
               />
               <span
