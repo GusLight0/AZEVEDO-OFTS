@@ -9,8 +9,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const campaigns = [
   {
     image: "/images/camisas-categoria/categoria-1.png",
-    label: "Camisas casuais",
-    href: "/produtos?sub=casual",
+    label: "Camisas polo",
+    href: "/produtos?sub=polo",
   },
   {
     image: "/images/camisas-categoria/categoria-2.png",
@@ -19,8 +19,8 @@ const campaigns = [
   },
   {
     image: "/images/camisas-categoria/categoria-3.png",
-    label: "Camisas polo",
-    href: "/produtos?sub=polo",
+    label: "Camisas casuais",
+    href: "/produtos?sub=casual",
   },
 ];
 
