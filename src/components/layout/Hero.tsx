@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 const desktopSlides = [
+  "/images/carrosel/desktop/carrosel-1-1.png",
   "/images/carrosel/desktop/carrosel-1.png",
   "/images/carrosel/desktop/carrossel-2.png",
   "/images/carrosel/desktop/carrossel-3.png",
@@ -13,6 +14,7 @@ const desktopSlides = [
 ];
 
 const mobileSlides = [
+  "/images/carrosel/mobile/carrosel-1-1.png",
   "/images/carrosel/mobile/carrosel-1.png",
   "/images/carrosel/mobile/carrosel-2.png",
   "/images/carrosel/mobile/carrosel-3.png",
@@ -48,9 +50,9 @@ export function Hero() {
     const timer = setTimeout(() => {
       setDirection(1);
       setCurrent((slide) => (slide + 1) % slides.length);
-    }, 5000);
+    }, activeIndex === 0 ? 10000 : 5000);
     return () => clearTimeout(timer);
-  }, [current, slides.length]);
+  }, [activeIndex, slides.length]);
 
   const handleDotClick = (index: number) => {
     setDirection(index >= activeIndex ? 1 : -1);
