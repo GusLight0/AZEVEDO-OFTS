@@ -80,7 +80,7 @@ export function CartDrawer() {
                   <ShoppingBag size={48} className="text-gray-200" />
                   <p className="text-gray-500 text-sm">Seu carrinho está vazio.</p>
                   <Link
-                    href="/produtos"
+                    href="/produtos?categoria=all"
                     onClick={closeCart}
                     className="text-sm text-[#0b1f3a] font-600 hover:underline"
                   >

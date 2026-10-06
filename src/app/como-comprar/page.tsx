@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { ShoppingCart, MessageCircle, Bike, Store } from "lucide-react";
+import Link from "next/link";
+import { ShoppingCart, MessageCircle, Bike, Store, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Como Comprar",
@@ -36,6 +37,15 @@ const steps = [
 export default function ComoComprarPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs text-gray-400">
+        <Link href="/" className="transition-colors hover:text-[#0b1f3a]">
+          Início
+        </Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="text-gray-600">
+          Como Comprar
+        </span>
+      </nav>
       <h1 className="text-3xl font-700 text-[#0b1f3a] mb-2">Como Comprar</h1>
       <p className="text-gray-500 mb-12">Simples, rápido e seguro. Veja como funciona:</p>
 

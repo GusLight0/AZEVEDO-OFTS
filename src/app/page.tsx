@@ -29,7 +29,7 @@ export default function HomePage() {
           <ProductsSection
             title="Lançamentos"
             products={lancamentos}
-            viewAllHref="/produtos"
+            viewAllHref="/produtos?lancamentos=true"
             horizontalCardsOnMobile
             hideLaunchBadge
           />

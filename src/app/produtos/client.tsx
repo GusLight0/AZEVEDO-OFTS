@@ -2,8 +2,9 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, ChevronDown, ChevronRight } from "lucide-react";
 import { products, categories } from "@/lib/data";
 import { searchMatch } from "@/lib/utils";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -23,12 +24,15 @@ const SIZES = ["P", "M", "G", "GG", "XGG", "38", "39", "40", "41", "42", "43", "
 export default function ProdutosClient() {
   const searchParams = useSearchParams();
   const qParam = searchParams.get("q") || "";
-  const catParam = searchParams.get("categoria") || "";
+  const categoryParam = searchParams.get("categoria") || "";
+  const catParam = categoryParam === "all" ? "" : categoryParam;
   const subParam = searchParams.get("sub") || "";
+  const launchesParam = searchParams.get("lancamentos") === "true";
   const promoParam = searchParams.get("promo") === "true";
 
   const [query, setQuery] = useState(qParam);
   const [selectedCat, setSelectedCat] = useState(subParam || catParam);
+  const [onlyLaunches, setOnlyLaunches] = useState(launchesParam);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [onlyPromo, setOnlyPromo] = useState(promoParam);
   const [onlyInStock, setOnlyInStock] = useState(false);
@@ -39,8 +43,9 @@ export default function ProdutosClient() {
   useEffect(() => {
     setQuery(qParam);
     setSelectedCat(subParam || catParam);
+    setOnlyLaunches(launchesParam);
     setOnlyPromo(promoParam);
-  }, [qParam, catParam, subParam, promoParam]);
+  }, [qParam, categoryParam, subParam, launchesParam, promoParam]);
 
   const filtered = useMemo(() => {
     let list = [...products];
@@ -65,6 +70,14 @@ export default function ProdutosClient() {
       }
     }
 
+    if (onlyLaunches) {
+      list = list.filter(
+        (p) =>
+          (p.badge === "LANÇAMENTO" || p.badge === "NOVO") &&
+          !(p.discount && p.discount > 0)
+      );
+    }
+
     if (selectedSizes.length > 0) {
       list = list.filter((p) => selectedSizes.some((s) => p.sizes.includes(s)));
     }
@@ -80,7 +93,7 @@ export default function ProdutosClient() {
     }
 
     return list;
-  }, [query, selectedCat, selectedSizes, onlyPromo, onlyInStock, sort]);
+  }, [query, selectedCat, onlyLaunches, selectedSizes, onlyPromo, onlyInStock, sort]);
 
   const toggleSize = (s: string) => {
     setSelectedSizes((prev) =>
@@ -91,6 +104,7 @@ export default function ProdutosClient() {
   const clearFilters = () => {
     setQuery("");
     setSelectedCat("");
+    setOnlyLaunches(false);
     setSelectedSizes([]);
     setOnlyPromo(false);
     setOnlyInStock(false);
@@ -108,7 +122,7 @@ export default function ProdutosClient() {
     return slug;
   };
 
-  const hasFilters = !!(query || selectedCat || selectedSizes.length > 0 || onlyPromo || onlyInStock);
+  const hasFilters = !!(query || selectedCat || onlyLaunches || selectedSizes.length > 0 || onlyPromo || onlyInStock);
 
   const FilterPanel = () => (
     <div className="space-y-6">
@@ -240,6 +254,16 @@ export default function ProdutosClient() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs text-gray-400">
+        <Link href="/" className="transition-colors hover:text-[#0b1f3a]">
+          Início
+        </Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="text-gray-600">
+          Produtos
+        </span>
+      </nav>
+
       <div className="flex flex-col md:flex-row gap-8">
         {/* Desktop Sidebar */}
         <aside className="hidden md:block w-56 flex-shrink-0">
@@ -296,6 +320,12 @@ export default function ProdutosClient() {
                 <span className="flex items-center gap-1 text-xs bg-[#e8edf7] text-[#0b1f3a] px-2.5 py-1 rounded-full font-medium">
                   {getCatName(selectedCat)}
                   <button onClick={() => setSelectedCat("")}><X size={12} /></button>
+                </span>
+              )}
+              {onlyLaunches && (
+                <span className="flex items-center gap-1 text-xs bg-[#e8edf7] text-[#0b1f3a] px-2.5 py-1 rounded-full font-medium">
+                  Lançamentos
+                  <button onClick={() => setOnlyLaunches(false)}><X size={12} /></button>
                 </span>
               )}
               {selectedSizes.map((s) => (

@@ -93,7 +93,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 transition-opacity hover:opacity-90">
             <Image
-              src="/images/Azevedo-logo.png"
+              src="/images/logo-redonda.png"
               alt="AZEVEDO OFTS"
               width={48}
               height={48}
@@ -285,7 +285,7 @@ export function Header() {
             >
               <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <Image
-                src="/images/Azevedo-logo.png"
+                src="/images/logo-redonda.png"
                 alt="AZEVEDO OFTS"
                 width={40}
                 height={40}

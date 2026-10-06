@@ -10,7 +10,7 @@ export function CategoriesSection() {
     <section className="max-w-7xl mx-auto px-4 py-6 md:py-12">
       <div className="flex items-center justify-between mb-4 md:mb-8">
         <h2 className="text-xl md:text-3xl font-700 text-[#0b1f3a]">Categorias</h2>
-        <Link href="/produtos" className="text-sm text-[#153a72] font-500 hover:underline">
+        <Link href="/produtos?categoria=all" className="text-sm text-[#153a72] font-500 hover:underline">
           Ver todos
         </Link>
       </div>

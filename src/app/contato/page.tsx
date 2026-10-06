@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { MessageCircle, Camera, Clock, MapPin } from "lucide-react";
+import Link from "next/link";
+import { MessageCircle, Camera, Clock, MapPin, ChevronRight } from "lucide-react";
 import { getWhatsAppUrl, whatsappContacts } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
@@ -10,6 +11,15 @@ export const metadata: Metadata = {
 export default function ContatoPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs text-gray-400">
+        <Link href="/" className="transition-colors hover:text-[#0b1f3a]">
+          Início
+        </Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="text-gray-600">
+          Contato
+        </span>
+      </nav>
       <h1 className="text-3xl font-700 text-[#0b1f3a] mb-2">Contato</h1>
       <p className="text-gray-500 mb-10">Estamos aqui para ajudar. Fale conosco!</p>
 

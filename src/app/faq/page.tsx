@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
@@ -69,6 +70,15 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function FaqPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-1.5 text-xs text-gray-400">
+        <Link href="/" className="transition-colors hover:text-[#0b1f3a]">
+          Início
+        </Link>
+        <ChevronRight size={12} aria-hidden="true" />
+        <span aria-current="page" className="text-gray-600">
+          FAQ
+        </span>
+      </nav>
       <h1 className="text-3xl font-700 text-[#0b1f3a] mb-2">Perguntas Frequentes</h1>
       <p className="text-gray-500 mb-10">Encontre respostas para as dúvidas mais comuns.</p>
       <div className="space-y-3">
