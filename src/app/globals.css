@@ -70,3 +70,33 @@ body {
 .categories-scroll::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes search-placeholder-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.search-placeholder-caret {
+  animation: search-placeholder-caret 0.8s steps(1, end) infinite;
+}
+
+@keyframes store-highlights-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.store-highlights-marquee {
+  animation: store-highlights-marquee 30s linear infinite;
+}
+
+.store-highlights-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (min-width: 768px), (prefers-reduced-motion: reduce) {
+  .store-highlights-marquee {
+    animation: none;
+  }
+}

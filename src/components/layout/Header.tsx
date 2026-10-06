@@ -66,14 +66,14 @@ export function Header() {
       {/* Top Bar */}
       <div className="bg-[#0b1f3a] text-white text-xs py-2 px-4 hidden md:block">
         <div className="max-w-7xl mx-auto flex items-center justify-center">
-          <span>Atendimento rápido via WhatsApp</span>
+          <span className="font-regular">Entrega em toda São Luís</span>
         </div>
       </div>
 
       {/* Main Header */}
       <motion.header
         animate={{
-          height: scrolled ? 56 : 72,
+          height: scrolled ? 64 : 80,
           backgroundColor: scrolled ? "rgba(0,0,0,0.88)" : "rgba(255,255,255,1)",
         }}
         transition={{ duration: 0.3 }}
@@ -186,7 +186,7 @@ export function Header() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-white border-b border-gray-100 px-4 py-3 sticky top-14 z-20 overflow-hidden"
+            className="md:hidden bg-white border-b border-gray-100 px-4 py-3 sticky top-16 z-20 overflow-hidden"
           >
             <SearchBar mobile onClose={() => setSearchOpen(false)} />
           </motion.div>
@@ -196,7 +196,7 @@ export function Header() {
       {/* Desktop Nav Bar */}
       <nav
         className="hidden md:block bg-white border-b border-gray-100 sticky z-20"
-        style={{ top: scrolled ? 56 : 72, transition: "top 0.3s" }}
+        style={{ top: scrolled ? 64 : 80, transition: "top 0.3s" }}
       >
         <div className="max-w-7xl mx-auto px-4 flex items-center gap-6 h-11">
           {/* Mega Menu Trigger */}

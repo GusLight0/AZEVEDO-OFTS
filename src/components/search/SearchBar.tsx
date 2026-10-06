@@ -9,6 +9,13 @@ import Link from "next/link";
 import { products } from "@/lib/data";
 import { searchMatch, formatPrice } from "@/lib/utils";
 
+const placeholderSuggestions = [
+  "camisa polo",
+  "camisa streetwear",
+  "camisa casual",
+  "camisa premium",
+];
+
 interface SearchBarProps {
   mobile?: boolean;
   onClose?: () => void;
@@ -17,6 +24,9 @@ interface SearchBarProps {
 export function SearchBar({ mobile = false, onClose }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const [typedSuggestion, setTypedSuggestion] = useState("");
+  const [deletingSuggestion, setDeletingSuggestion] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -51,23 +61,65 @@ export function SearchBar({ mobile = false, onClose }: SearchBarProps) {
     if (mobile) inputRef.current?.focus();
   }, [mobile]);
 
+  useEffect(() => {
+    if (query) return;
+
+    const suggestion = placeholderSuggestions[suggestionIndex];
+    let delay: number;
+
+    if (!deletingSuggestion && typedSuggestion.length < suggestion.length) {
+      delay = 90;
+    } else if (!deletingSuggestion) {
+      delay = 1400;
+    } else if (typedSuggestion.length > 0) {
+      delay = 45;
+    } else {
+      delay = 250;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (!deletingSuggestion && typedSuggestion.length < suggestion.length) {
+        setTypedSuggestion(suggestion.slice(0, typedSuggestion.length + 1));
+      } else if (!deletingSuggestion) {
+        setDeletingSuggestion(true);
+      } else if (typedSuggestion.length > 0) {
+        setTypedSuggestion(typedSuggestion.slice(0, -1));
+      } else {
+        setDeletingSuggestion(false);
+        setSuggestionIndex((index) => (index + 1) % placeholderSuggestions.length);
+      }
+    }, delay);
+
+    return () => window.clearTimeout(timer);
+  }, [deletingSuggestion, query, suggestionIndex, typedSuggestion]);
+
   return (
     <div className="relative w-full">
       <form onSubmit={handleSubmit} className="relative">
         <Search
           size={16}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-black"
         />
         <input
           ref={inputRef}
+          aria-label="Pesquisar produtos, times e marcas"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setTimeout(() => setFocused(false), 150)}
-          placeholder="Buscar produtos, times, marcas..."
-          className="w-full pl-9 pr-9 py-2.5 bg-[#e8edf7] rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#0b1f3a]/30 transition-all"
+          className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-9 text-sm text-black outline-none transition-all focus:border-gray-300 focus:ring-2 focus:ring-black/10"
         />
+        {!query && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-9 right-9 top-1/2 -translate-y-1/2 overflow-hidden whitespace-nowrap text-xs sm:text-sm"
+          >
+            <span className="text-gray-400">Estou pensando em </span>
+            <span className="text-black">{typedSuggestion}</span>
+            <span className="search-placeholder-caret ml-0.5 inline-block h-3.5 w-px bg-black align-middle sm:h-4" />
+          </div>
+        )}
         {query && (
           <button
             type="button"
