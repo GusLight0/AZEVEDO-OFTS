@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "Camisas de times, tênis, bermudas e acessórios esportivos com qualidade premium. Frete grátis acima de R$299.",
   keywords: ["camisas de time", "tênis", "produtos esportivos", "futebol", "azevedo ofts"],
   icons: {
-    icon: "/images/Azevedo-favicon.png",
+    icon: "/images/logo-branca.png",
   },
   openGraph: {
     title: "AZEVEDO OFTS",

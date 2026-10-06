@@ -93,7 +93,7 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0 transition-opacity hover:opacity-90">
             <Image
-              src="/images/logo-redonda.png"
+              src={scrolled ? "/images/logo-branca.png" : "/images/logo-redonda.png"}
               alt="AZEVEDO OFTS"
               width={48}
               height={48}

@@ -267,7 +267,7 @@ export default function ProdutosClient() {
       <div className="flex flex-col md:flex-row gap-8">
         {/* Desktop Sidebar */}
         <aside className="hidden md:block w-56 flex-shrink-0">
-          <div className="sticky top-36">
+          <div className="sticky top-36 max-h-[calc(100vh-9rem)] overflow-y-auto overscroll-contain">
             <h2 className="font-bold text-lg text-[#0b1f3a] mb-5">Filtros</h2>
             <FilterPanel />
           </div>

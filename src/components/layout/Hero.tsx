@@ -91,6 +91,7 @@ export function Hero() {
           <Image
             src={slides[activeIndex]}
             alt="Azevedo Ofts"
+            quality={slides[activeIndex].endsWith("carrosel-1-1.png") ? 100 : undefined}
             fill
             priority={activeIndex === 0}
             className="object-cover object-center"
