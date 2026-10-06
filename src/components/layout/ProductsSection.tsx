@@ -7,6 +7,7 @@ interface ProductsSectionProps {
   products: Product[];
   viewAllHref?: string;
   horizontalCardsOnMobile?: boolean;
+  hideLaunchBadge?: boolean;
 }
 
 export function ProductsSection({
@@ -14,12 +15,13 @@ export function ProductsSection({
   products,
   viewAllHref,
   horizontalCardsOnMobile = false,
+  hideLaunchBadge = false,
 }: ProductsSectionProps) {
   if (products.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-10">
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl md:text-3xl font-700 text-[#0b1f3a]">{title}</h2>
         {viewAllHref && (
           <Link href={viewAllHref} className="text-sm text-[#153a72] font-500 hover:underline">
@@ -30,13 +32,16 @@ export function ProductsSection({
       <div
         className={`grid ${
           horizontalCardsOnMobile ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-2"
-        } md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4`}
+        } md:grid-cols-3 lg:grid-cols-5 ${
+          horizontalCardsOnMobile ? "gap-x-3 gap-y-2 md:gap-4" : "gap-3 md:gap-4"
+        }`}
       >
         {products.map((p) => (
           <ProductCard
             key={p.id}
             product={p}
             horizontalOnMobile={horizontalCardsOnMobile}
+            hideLaunchBadge={hideLaunchBadge}
           />
         ))}
       </div>

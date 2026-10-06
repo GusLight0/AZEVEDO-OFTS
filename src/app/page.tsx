@@ -31,6 +31,7 @@ export default function HomePage() {
             products={lancamentos}
             viewAllHref="/produtos"
             horizontalCardsOnMobile
+            hideLaunchBadge
           />
         </BlurReveal>
       )}

@@ -23,10 +23,10 @@ export const BlurReveal = ({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting);
+        setIsVisible(entry.isIntersecting && entry.intersectionRatio > 0);
       },
       {
-        threshold: 0.05,
+        threshold: 0,
       }
     );
 

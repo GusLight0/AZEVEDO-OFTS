@@ -12,9 +12,11 @@ import { useFavorites } from "@/lib/favorites-context";
 export function ProductCard({
   product,
   horizontalOnMobile = false,
+  hideLaunchBadge = false,
 }: {
   product: Product;
   horizontalOnMobile?: boolean;
+  hideLaunchBadge?: boolean;
 }) {
   const { toggle, isFavorited } = useFavorites();
   const liked = isFavorited(product.id);
@@ -40,7 +42,7 @@ export function ProductCard({
         <div
           className={`relative block aspect-[3/4] overflow-hidden ${
             horizontalOnMobile
-              ? "w-[38%] min-h-[220px] shrink-0 aspect-auto bg-gray-50 md:w-full md:min-h-0 md:aspect-[3/4] md:bg-transparent"
+              ? "w-[38%] min-h-[168px] shrink-0 aspect-auto bg-gray-50 md:w-full md:min-h-0 md:aspect-[3/4] md:bg-transparent"
               : "w-full"
           }`}
         >
@@ -48,12 +50,14 @@ export function ProductCard({
             src={product.images[0]}
             alt={product.name}
             fill
-            className={`${horizontalOnMobile ? "object-contain md:object-cover" : "object-cover"} transition-transform duration-500 group-hover:scale-105 ${
+            className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
               !product.inStock ? "grayscale" : ""
             }`}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
-          <ProductBadge badge={product.badge} discount={product.discount} />
+          {!(hideLaunchBadge && product.badge === "LANÇAMENTO") && (
+            <ProductBadge badge={product.badge} discount={product.discount} />
+          )}
           {!product.inStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/30">
               <span className="rounded-full bg-white px-3 py-1 text-xs font-600 text-gray-800">
@@ -63,11 +67,7 @@ export function ProductCard({
           )}
         </div>
 
-        <div
-          className={`flex min-w-0 flex-1 flex-col p-3 ${
-            horizontalOnMobile ? "pt-12 md:pt-3" : ""
-          }`}
-        >
+        <div className="flex min-w-0 flex-1 flex-col p-3">
           <p className="mb-0.5 text-xs text-gray-500">{product.brand}</p>
           <h3 className="min-h-10 text-sm font-600 leading-tight text-gray-900 line-clamp-2 transition-colors group-hover:text-[#0b1f3a]">
             {product.name}
@@ -89,7 +89,13 @@ export function ProductCard({
         </div>
       </Link>
 
-      <div className="absolute right-2 top-2 z-20">
+      <div
+        className={`absolute top-2 z-20 ${
+          horizontalOnMobile
+            ? "left-[calc(38%_-_2.5rem)] md:left-auto md:right-2"
+            : "right-2"
+        }`}
+      >
         <button
           type="button"
           onClick={() => toggle(product)}

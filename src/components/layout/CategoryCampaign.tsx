@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -25,12 +25,43 @@ const campaigns = [
 ];
 
 export function CategoryCampaign() {
+  const [mobilePosition, setMobilePosition] = useState(0);
+  const mobileTrackRef = useRef<HTMLDivElement>(null);
   const [desktopPosition, setDesktopPosition] = useState(3);
   const [instantReset, setInstantReset] = useState(false);
   const [animating, setAnimating] = useState(false);
   const desktopSlides = Array.from({ length: 3 }, (_, cycle) =>
     campaigns.map((campaign) => ({ ...campaign, key: `${campaign.href}-${cycle}` }))
   ).flat();
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      const nextPosition = (mobilePosition + 1) % campaigns.length;
+      setMobilePosition(nextPosition);
+      mobileTrackRef.current?.scrollTo({
+        left: nextPosition * mobileTrackRef.current.clientWidth,
+        behavior: "smooth",
+      });
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
+  }, [mobilePosition]);
+
+  const handleMobileScroll = () => {
+    const track = mobileTrackRef.current;
+    if (!track || track.clientWidth === 0) return;
+
+    const position = Math.round(track.scrollLeft / track.clientWidth);
+    setMobilePosition(Math.min(position, campaigns.length - 1));
+  };
+
+  const goToMobileSlide = (index: number) => {
+    setMobilePosition(index);
+    mobileTrackRef.current?.scrollTo({
+      left: index * (mobileTrackRef.current?.clientWidth ?? 0),
+      behavior: "smooth",
+    });
+  };
 
   const moveDesktop = (direction: -1 | 1) => {
     if (animating) return;
@@ -53,28 +84,55 @@ export function CategoryCampaign() {
 
   return (
     <section aria-label="Explore nossas camisas" className="w-full">
-      <div className="categories-scroll flex snap-x snap-mandatory overflow-x-auto md:hidden">
-        {campaigns.map((campaign) => (
-          <Link
-            key={campaign.href}
-            href={campaign.href}
-            aria-label={`Ver produtos: ${campaign.label}`}
-            className="group relative block w-full shrink-0 snap-start cursor-pointer overflow-hidden outline-none md:w-auto"
-          >
-            <Image
-              src={campaign.image}
-              alt={campaign.label}
-              width={500}
-              height={650}
-              sizes="(max-width: 767px) 100vw, 33vw"
-              className="block h-auto w-full"
+      <div className="relative md:hidden">
+        <div
+          ref={mobileTrackRef}
+          onScroll={handleMobileScroll}
+          className="categories-scroll flex snap-x snap-mandatory overflow-x-auto"
+        >
+          {campaigns.map((campaign) => (
+            <Link
+              key={campaign.href}
+              href={campaign.href}
+              aria-label={`Ver produtos: ${campaign.label}`}
+              className="group relative block w-full shrink-0 snap-start cursor-pointer overflow-hidden outline-none"
+            >
+              <Image
+                src={campaign.image}
+                alt={campaign.label}
+                width={500}
+                height={650}
+                sizes="(max-width: 767px) 100vw, 33vw"
+                className="block h-auto w-full"
+              />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 transition-colors duration-300 hover:bg-white/10"
+              />
+            </Link>
+          ))}
+        </div>
+
+        <div
+          role="group"
+          aria-label="Navegação das categorias"
+          className="absolute bottom-2.5 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1"
+        >
+          {campaigns.map((campaign, index) => (
+            <button
+              key={campaign.href}
+              type="button"
+              onClick={() => goToMobileSlide(index)}
+              aria-label={`Ir para ${campaign.label}`}
+              aria-current={index === mobilePosition ? "true" : undefined}
+              className={`rounded-full transition-all duration-300 ${
+                index === mobilePosition
+                  ? "h-1 w-3.5 bg-white"
+                  : "h-1 w-1 bg-white/50"
+              }`}
             />
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 transition-colors duration-300 hover:bg-white/10"
-            />
-          </Link>
-        ))}
+          ))}
+        </div>
       </div>
 
       <div className="group/desktop relative hidden overflow-hidden md:block">
