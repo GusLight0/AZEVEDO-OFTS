@@ -1,12 +1,10 @@
 # Banners mobile do carrossel
 
-Crie e coloque nesta pasta quatro imagens em PNG com proporcao 4:5 e dimensao
-recomendada de 1080 x 1350 px. A versao mobile do carrossel sera usada em telas
-de ate 767 px de largura quando os banners forem adicionados.
+Coloque nesta pasta duas imagens em PNG com proporcao aproximada de 7:4. A
+versao mobile do carrossel sera usada em telas de ate 767 px de largura.
 
-Use estes nomes para substituir/adicionar os banners:
+O componente exibe estes dois banners sem recompressao nem redimensionamento
+automatico dos arquivos originais:
 
 - `carrosel-1.png`
-- `carrossel-2.png`
-- `carrosel-3.png`
-- `carrossel-4.png`
+- `carrosel-2.png`

@@ -6,18 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 
 
 const desktopSlides = [
-  "/images/carrosel/desktop/carrosel-1-1.png",
   "/images/carrosel/desktop/carrosel-1.png",
-  "/images/carrosel/desktop/carrossel-2.png",
-  "/images/carrosel/desktop/carrossel-3.png",
-  "/images/carrosel/desktop/carrossel-4.png",
+  "/images/carrosel/desktop/carrosel-2.png",
 ];
 
 const mobileSlides = [
-  "/images/carrosel/mobile/carrosel-1-1.png",
   "/images/carrosel/mobile/carrosel-1.png",
   "/images/carrosel/mobile/carrosel-2.png",
-  "/images/carrosel/mobile/carrosel-3.png",
 ];
 
 const slideVariants = {
@@ -91,9 +86,9 @@ export function Hero() {
           <Image
             src={slides[activeIndex]}
             alt="Azevedo Ofts"
-            quality={slides[activeIndex].endsWith("carrosel-1-1.png") ? 100 : undefined}
             fill
             priority={activeIndex === 0}
+            unoptimized
             className="object-cover object-center"
             sizes="100vw"
           />
