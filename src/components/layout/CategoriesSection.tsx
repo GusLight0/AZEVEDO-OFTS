@@ -30,7 +30,7 @@ export function CategoriesSection() {
                 href={`/produtos?categoria=${cat.slug}`}
                 className="group flex w-[72px] flex-col items-center gap-1 md:w-[100px] md:gap-3"
               >
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-gray-200 transition-all duration-300 group-hover:shadow-lg group-hover:scale-105">
+                <div className="relative w-full aspect-square rounded-full overflow-hidden transition-all duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.03] group-hover:shadow-md">
                   <Image
                     src={cat.image}
                     alt={cat.name}
@@ -49,7 +49,7 @@ export function CategoriesSection() {
                 aria-label={`${cat.name} — indisponível`}
                 title={`${cat.name} indisponível no momento`}
               >
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden border-2 border-gray-200">
+                <div className="relative w-full aspect-square rounded-full overflow-hidden">
                   <Image
                     src={cat.image}
                     alt={cat.name}
