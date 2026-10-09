@@ -48,6 +48,15 @@ export function getColorClassName(color: string): string {
     "Vermelho": "bg-red-600",
     "Azul Claro": "bg-blue-300",
     Cinza: "bg-gray-400",
+    "Preto com branco": "bg-gradient-to-br from-black to-white",
+    "Azul-marinho com branco": "bg-gradient-to-br from-[#000080] to-white",
+    "Vermelho com preto": "bg-gradient-to-br from-red-600 to-black",
+    "Branco com preto": "bg-gradient-to-br from-white to-black",
+    "Bege com branco": "bg-gradient-to-br from-[#f5f5dc] to-white",
+    "Verde com branco": "bg-gradient-to-br from-green-600 to-white",
+    "Preto com azul": "bg-gradient-to-br from-black to-blue-600",
+    "Estampados e outras combinações de cores":
+      "bg-gradient-to-br from-red-500 via-yellow-400 to-blue-600",
   };
 
   return colorMap[color] || "bg-gray-300";

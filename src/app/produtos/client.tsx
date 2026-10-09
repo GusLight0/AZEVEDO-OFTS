@@ -38,7 +38,11 @@ export default function ProdutosClient() {
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [sort, setSort] = useState("relevance");
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(["camisas"]);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  const selectedSubcategoryParent = categories.find((category) =>
+    category.subcategories.some((subcategory) => subcategory.slug === subParam)
+  );
 
   useEffect(() => {
     setQuery(qParam);
@@ -46,6 +50,12 @@ export default function ProdutosClient() {
     setOnlyLaunches(launchesParam);
     setOnlyPromo(promoParam);
   }, [qParam, categoryParam, subParam, launchesParam, promoParam]);
+
+  useEffect(() => {
+    setExpandedCategories(
+      selectedSubcategoryParent ? [selectedSubcategoryParent.slug] : []
+    );
+  }, [categoryParam, subParam]);
 
   const filtered = useMemo(() => {
     let list = [...products];

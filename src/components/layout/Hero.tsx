@@ -8,11 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 const desktopSlides = [
   "/images/carrosel/desktop/carrosel-1.png",
   "/images/carrosel/desktop/carrosel-2.png",
+  "/images/carrosel/desktop/carrossel-3.png",
 ];
 
 const mobileSlides = [
   "/images/carrosel/mobile/carrosel-1.png",
   "/images/carrosel/mobile/carrosel-2.png",
+  "/images/carrosel/mobile/carrossel-3.png",
 ];
 
 const slideVariants = {

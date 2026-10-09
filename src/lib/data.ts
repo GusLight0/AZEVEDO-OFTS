@@ -271,6 +271,38 @@ const allProducts: Product[] = [
     reviews: 0,
     collection: "Polos",
   },
+  {
+    id: "bermuda-sport-jordan",
+    name: "Bermuda Sport Jordan",
+    slug: "bermuda-sport-jordan",
+    description:
+      "Bermuda Sport Jordan com visual esportivo e confortável. Disponível em diferentes combinações de cores e nos tamanhos M, G e GG.",
+    price: 95,
+    originalPrice: 111.76,
+    discount: 15,
+    images: [
+      "/images/roupas/bermudas/sport/bermuda-jordan-1.jpeg",
+      "/images/roupas/bermudas/sport/bermuda-jordan-2.jpeg",
+      "/images/roupas/bermudas/sport/bermuda-jordan-3.jpeg",
+      "/images/roupas/bermudas/sport/bermuda-jordan-4.jpeg",
+      "/images/roupas/bermudas/sport/bermuda-jordan-5.jpeg",
+      "/images/roupas/bermudas/sport/bermuda-jordan-6.jpeg",
+    ],
+    category: "bermudas",
+    subcategory: "sport",
+    brand: "Jordan",
+    tags: ["bermuda", "sport", "jordan", "esportiva", "promoção"],
+    color:
+      "Preto com branco, Azul-marinho com branco, Vermelho com preto, Branco com preto, Bege com branco, Verde com branco, Preto com azul, Estampados e outras combinações de cores",
+    sizes: ["M", "G", "GG"],
+    badge: null,
+    inStock: true,
+    active: true,
+    sold: 0,
+    stock: 50,
+    rating: 5.0,
+    reviews: 0,
+  },
 ];
 
 // Produtos ativos exibidos na loja
@@ -307,7 +339,7 @@ export const categories: Category[] = [
     slug: "bermudas",
     icon: "Layers",
     image: "/images/categorias/img-categorias-bermuda.png",
-    subcategories: [],
+    subcategories: [{ name: "Sport", slug: "sport" }],
   },
   {
     name: "Bonés",

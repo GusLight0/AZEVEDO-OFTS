@@ -25,7 +25,7 @@ export function CategoriesSection() {
             viewport={{ once: true }}
             transition={{ delay: i * 0.05, duration: 0.3 }}
           >
-            {cat.slug === "camisas" ? (
+            {(cat.slug === "camisas" || cat.slug === "bermudas") ? (
               <Link
                 href={`/produtos?categoria=${cat.slug}`}
                 className="group flex w-[72px] flex-col items-center gap-1 md:w-[100px] md:gap-3"
